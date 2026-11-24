@@ -36,6 +36,8 @@ python3 -m http.server 8767 --directory assets
 
 然后打开 <http://localhost:8767/public-source.html>。
 
+线上访问：[空间对齐辅助工具](https://troyeagle.github.io/expedition-alfonso-showcase/)。源码 `main` 构建后由博客流程自动收集和部署；本地验证、通知配置及恢复步骤见 [HTML 自动发布规约](.github/STATIC_PUBLISH.md)。
+
 ## 修改与打包
 
 场景源码位于 `assets/embedded-scene.html`。修改后，在本目录运行：

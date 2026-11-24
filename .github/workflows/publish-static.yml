@@ -1,0 +1,25 @@
+name: Build static application
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: static-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish static application
+    uses: troyeagle/troyeagle.github.io/.github/workflows/build-static-app.yml@9673fd339d75432cca3bee4429f4455130729f59
+    with:
+      app: expedition-alfonso-showcase
+      publisher_ref: 9673fd339d75432cca3bee4429f4455130729f59
+    secrets:
+      BLOG_DISPATCH_TOKEN: ${{ secrets.BLOG_DISPATCH_TOKEN }}
