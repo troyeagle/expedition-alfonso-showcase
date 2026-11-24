@@ -14,11 +14,14 @@ concurrency:
   group: project-pages-${{ github.ref }}
   cancel-in-progress: false
 
+# Default for a public repository is project Pages. To move to a private source,
+# follow STATIC_PUBLISH.md and select SITE_PUBLISH_MODE=blog explicitly.
 jobs:
   build:
     name: Build project site
+    if: vars.SITE_PUBLISH_MODE != 'blog' && !github.event.repository.private
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     permissions:
       contents: read
       pages: read
@@ -29,11 +32,17 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
-      - name: Validate standalone page and license
+      - name: Run application checks
         run: python3 -m unittest discover -s tests -v
-      - name: Build static project site
+        env:
+          CI: 'true'
+      - name: Build project site
         run: python3 scripts/build_static_pages.py
-      - name: Configure project Pages
+        env:
+          CI: 'true'
+          PUBLIC_URL: /expedition-alfonso-showcase
+          GENERATE_SOURCEMAP: 'false'
+      - name: Configure Pages
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - name: Upload Pages artifact
@@ -45,7 +54,7 @@ jobs:
 
   deploy:
     name: Deploy project site
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    if: vars.SITE_PUBLISH_MODE != 'blog' && !github.event.repository.private && github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -56,6 +65,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy GitHub Pages
+      - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
